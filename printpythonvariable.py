@@ -1,6 +1,9 @@
 import sublime, sublime_plugin
 import re
 
+LANG_RE = "^((source|text\.)[\w+\-\.#]+)"
+LANG_PROG = re.compile(LANG_RE)
+
 class PrintPythonVariableCommand(sublime_plugin.TextCommand):
 
   def run(self, edit):
@@ -17,4 +20,15 @@ class PrintPythonVariableCommand(sublime_plugin.TextCommand):
     self.view.insert(edit, full_line_reg.end(), statement)
 
   def is_visible(self):
-    return re.search("(Python|python)", self.view.settings().get("syntax")) is not None
+    return self.__get_language() == "source.python"
+
+  def __get_language(self):
+    view = self.view
+    if view == None:
+        view = sublime.active_window().active_view()
+    cursor = view.sel()[0].a
+    scope = view.scope_name(cursor).strip()
+    language = LANG_PROG.search(scope)
+    if language == None:
+        return None
+    return language.group(0)
