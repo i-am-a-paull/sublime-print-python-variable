@@ -13,7 +13,10 @@ class PrintPythonVariableCommand(sublime_plugin.TextCommand):
     full_line = self.view.substr(full_line_reg)
     
     indent = re.search("^([ \t]*)", full_line).group(1)
-    line_ending = re.search("([\r\n]?)$", full_line).group(1)
+    line_ending_match = re.search("([:]?)([\r\n]?)$", full_line)
+    if len(line_ending_match.group(1)) > 0:
+        indent += "\t"
+    line_ending = line_ending_match.group(2)
     word = self.view.substr(self.view.word(sel.begin()))
 
     statement = "%sprint \"%s: %%s\" %% %s%s" % (indent, word, word, line_ending)
